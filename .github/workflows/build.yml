@@ -56,8 +56,8 @@ jobs:
     - name: Run current action
       uses: ./
       with:
-        group: org.springframework
-        name: spring-core
+        group: org.ow2.asm
+        name: asm
 
 
     - name: Push back
