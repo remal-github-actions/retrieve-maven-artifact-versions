@@ -47,16 +47,16 @@ export async function retrieveMavenArtifactVersions(
 ): Promise<MavenArtifactVersions> {
     core.info(`Retrieving ${artifactGroup}:${artifactName} versions from ${repositoryUrl}`)
 
-    const trueRepositoryUrl = resolveRepositoryAlias(
+    repositoryUrl = resolveRepositoryAlias(
         repositoryUrl
             .replace(/\?+.*/, '')
             .replace(/#+.*/, '')
             .replace(/\/+$/, '')
     )
-    core.info(`True repository URL: ${trueRepositoryUrl}`)
+    core.debug(`True repository URL: ${repositoryUrl}`)
 
     const mavenMetadataXmlUrl = [
-        trueRepositoryUrl,
+        repositoryUrl,
         artifactGroup.replace('.', '/'),
         artifactName,
         'maven-metadata.xml',

@@ -9,7 +9,7 @@ inputs:
     required: true
     description: Maven artifact name
   repository:
-    default: cental
+    default: central
     required: true
     description: |-
       Maven repository URL.
