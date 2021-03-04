@@ -20,8 +20,15 @@ async function run(): Promise<void> {
             const url = core.getInput('repository', {required: false})
             return REPOSITORY_ALIASES[url.toLowerCase()] || url
         })()
+
         const repositoryUser = core.getInput('user')
+        if (repositoryUser) {
+            core.setSecret(repositoryUser)
+        }
         const repositoryPassword = core.getInput('password')
+        if (repositoryPassword) {
+            core.setSecret(repositoryPassword)
+        }
 
         const minVersion = Version.parse(core.getInput('min'))
         const maxVersion = Version.parse(core.getInput('max'))
