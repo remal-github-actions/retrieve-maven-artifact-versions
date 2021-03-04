@@ -55,7 +55,7 @@ export async function retrieveMavenArtifactVersions(
 
     const mavenMetadataXmlUrl = [
         repositoryUrl.replace(/\/+$/, ''),
-        artifactGroup.replace('.', '/'),
+        artifactGroup.replace(/\./g, '/'),
         artifactName,
         'maven-metadata.xml',
     ].join('/')
