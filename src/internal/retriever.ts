@@ -44,7 +44,8 @@ export async function retrieveMavenArtifactVersions(
 
     const trueRepositoryUrl = resolveRepositoryAlias(
         repositoryUrl
-            .replace(/[?#]+.*/, '')
+            .replace(/\?+.*/, '')
+            .replace(/#+.*/, '')
             .replace(/\/+$/, '')
     )
     core.debug(`True repository URL: ${trueRepositoryUrl}`)
