@@ -14,7 +14,12 @@ const REPOSITORY_ALIASES: { [key: string]: string } = {
 }
 
 export function resolveRepositoryAlias(repositoryUrl: string): string {
-    return REPOSITORY_ALIASES[repositoryUrl.toLowerCase()] || repositoryUrl
+    const aliasUrl = REPOSITORY_ALIASES[repositoryUrl.toLowerCase()]
+    if (aliasUrl != null) {
+        return aliasUrl
+    } else {
+        return repositoryUrl
+    }
 }
 
 
