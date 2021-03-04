@@ -6,10 +6,10 @@ import {Version} from './internal/Version'
 
 async function run(): Promise<void> {
     try {
-        const artifactGroup = core.getInput('group', {required: true})
-        const artifactName = core.getInput('name', {required: true})
+        const artifactGroup = core.getInput('group', {required: true}).trim()
+        const artifactName = core.getInput('name', {required: true}).trim()
 
-        const repositoryUrl = core.getInput('repository', {required: false})
+        const repositoryUrl = core.getInput('repository', {required: false}).trim()
 
         const repositoryUser = core.getInput('user')
         if (repositoryUser) {
@@ -20,8 +20,8 @@ async function run(): Promise<void> {
             core.setSecret(repositoryPassword)
         }
 
-        const minVersion = Version.parse(core.getInput('min'))
-        const maxVersion = Version.parse(core.getInput('max'))
+        const minVersion = Version.parse(core.getInput('min').trim())
+        const maxVersion = Version.parse(core.getInput('max').trim())
 
         const versions = await retrieveMavenArtifactVersions(
             artifactGroup,
