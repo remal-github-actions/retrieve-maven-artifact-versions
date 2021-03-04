@@ -56,7 +56,8 @@ jobs:
     - name: Run current action
       uses: ./
       with:
-        githubToken: ${{ secrets.PUSH_BACK_TOKEN }}
+        group: org.springframework
+        name: spring-core
 
 
     - name: Push back

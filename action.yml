@@ -2,9 +2,50 @@ name: Template action
 description: Template action description
 
 inputs:
-  githubToken:
+  group:
     required: true
-    description: GitHub access token with at least 'public_repo' (use 'repo' scope instead of 'public_repo' for private repositories)
+    description: Maven artifact group
+  name:
+    required: true
+    description: Maven artifact name
+  repository:
+    default: cental
+    required: true
+    description: |-
+      Maven repository URL.
+      Aliases can be ued:
+      * central - https://repo1.maven.org/maven2/
+      * oss-snapshots - https://oss.sonatype.org/content/repositories/snapshots/
+  user:
+    required: false
+    description: Maven repository user
+  password:
+    required: false
+    description: Maven repository password
+  min:
+    required: false
+    description: Minimum version
+  max:
+    required: false
+    description: Maximum version
+
+outputs:
+  stable:
+    description: JSON array of all matched stable versions
+  unstable:
+    description: JSON array of all matched stable and unstable versions
+  latestStable:
+    description: Latest matched stable version
+  latestUnstable:
+    description: Latest matched version among stable and unstable versions
+  stableMajors:
+    description: JSON array of last minor version of all matched stable versions
+  unstableMajors:
+    description: JSON array of last minor version of all matched stable and unstable versions
+  stableMinor:
+    description: JSON array of last patch version of all matched stable versions
+  unstableMinor:
+    description: JSON array of last patch version of all matched stable and unstable versions
 
 runs:
   using: node12
