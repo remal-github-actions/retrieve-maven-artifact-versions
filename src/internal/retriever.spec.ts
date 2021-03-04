@@ -11,11 +11,11 @@ describe('retriever', () => {
 
     it('positive scenario', () => {
         nock('https://repo1.maven.org').persist()
-            .get('/maven2/org/springframework/spring-core/maven-metadata.xml')
+            .get('/maven2/org/springframework/boot/spring.core/maven-metadata.xml')
             .reply(200, `
                 <metadata modelVersion="1.1.0">
                     <groupId>org.springframework</groupId>
-                    <artifactId>spring-core</artifactId>
+                    <artifactId>spring.core</artifactId>
                     <versioning>
                         <versions>
                             <version>1.0-rc1</version>
@@ -32,7 +32,11 @@ describe('retriever', () => {
                 </metadata>
             `)
 
-        return retrieveMavenArtifactVersions('org.springframework', 'spring-core', 'https://repo1.maven.org/maven2/')
+        return retrieveMavenArtifactVersions(
+            'org.springframework.boot',
+            'spring.core',
+            'https://repo1.maven.org/maven2/'
+        )
             .then(versions => {
                 expect(versions.stable).toStrictEqual([
                     new Version('5.2.0.RELEASE'),
@@ -84,13 +88,17 @@ describe('retriever', () => {
     it('server error', () => {
         let requestsCount = 0
         nock('https://repo1.maven.org').persist()
-            .get('/maven2/org/springframework/spring-core/maven-metadata.xml')
+            .get('/maven2/org/springframework/boot/spring.core/maven-metadata.xml')
             .reply(500)
             .on('request', () =>
                 ++requestsCount
             )
 
-        return retrieveMavenArtifactVersions('org.springframework', 'spring-core', 'https://repo1.maven.org/maven2/')
+        return retrieveMavenArtifactVersions(
+            'org.springframework.boot',
+            'spring.core',
+            'https://repo1.maven.org/maven2/'
+        )
             .then(exceptionExpected)
             .catch(exceptionExpected)
             .finally(() => expect(requestsCount).toBe(3))
