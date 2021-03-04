@@ -1,5 +1,5 @@
 import nock from 'nock'
-import {retrieveMavenArtifactVersions} from './retriever'
+import {resolveRepositoryAlias, retrieveMavenArtifactVersions} from './retriever'
 import {Version} from './Version'
 
 describe('retriever', () => {
@@ -94,6 +94,21 @@ describe('retriever', () => {
             .then(exceptionExpected)
             .catch(exceptionExpected)
             .finally(() => expect(requestsCount).toBe(3))
+    })
+
+
+    it('resolveRepositoryAlias', () => {
+        expect(resolveRepositoryAlias('central'))
+            .toBe('https://repo1.maven.org/maven2/')
+
+        expect(resolveRepositoryAlias('oss-snapshots'))
+            .toBe('https://oss.sonatype.org/content/repositories/snapshots/')
+
+        expect(resolveRepositoryAlias('https://oss.sonatype.org/content/repositories/releases/'))
+            .toBe('https://oss.sonatype.org/content/repositories/releases/')
+
+        expect(resolveRepositoryAlias('ggg'))
+            .toBe('ggg')
     })
 
 })

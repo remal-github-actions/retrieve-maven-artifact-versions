@@ -4,22 +4,12 @@ import {Version} from './internal/Version'
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-const REPOSITORY_ALIASES: { [key: string]: string } = {
-    'central': 'https://repo1.maven.org/maven2/',
-    'oss-snapshots': 'https://oss.sonatype.org/content/repositories/snapshots/',
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 async function run(): Promise<void> {
     try {
         const artifactGroup = core.getInput('group', {required: true})
         const artifactName = core.getInput('name', {required: true})
 
-        const repositoryUrl = (function () {
-            const url = core.getInput('repository', {required: false})
-            return REPOSITORY_ALIASES[url.toLowerCase()] || url
-        })()
+        const repositoryUrl = core.getInput('repository', {required: false})
 
         const repositoryUser = core.getInput('user')
         if (repositoryUser) {

@@ -8,6 +8,16 @@ import {ElementCompact} from 'xml-js'
 import {lastVersionByNumber} from './lastVersionByNumber'
 import {compareVersionsDesc, Version} from './Version'
 
+const REPOSITORY_ALIASES: { [key: string]: string } = {
+    'central': 'https://repo1.maven.org/maven2/',
+    'oss-snapshots': 'https://oss.sonatype.org/content/repositories/snapshots/',
+}
+
+export function resolveRepositoryAlias(repositoryUrl: string): string {
+    return REPOSITORY_ALIASES[repositoryUrl.toLowerCase()] || repositoryUrl
+}
+
+
 export interface MavenArtifactVersions {
     stable: readonly Version[]
     unstable: readonly Version[]
@@ -30,8 +40,8 @@ export async function retrieveMavenArtifactVersions(
     minVersion?: Version,
     maxVersion?: Version
 ): Promise<MavenArtifactVersions> {
-    repositoryUrl = repositoryUrl.replace(/[?#].*/, '')
     core.info(`Retrieving ${artifactGroup}:${artifactName} versions from ${repositoryUrl}`)
+    repositoryUrl = resolveRepositoryAlias(repositoryUrl.replace(/[?#].*/, ''))
 
     const mavenMetadataXmlUrl = [
         repositoryUrl.replace(/\/+$/, ''),
@@ -120,6 +130,7 @@ export async function retrieveMavenArtifactVersions(
         })
         .finally(() => httpClient.dispose())
 }
+
 
 function toArray<T>(obj: T | T[] | undefined): T[] {
     if (obj == null) {
