@@ -48,7 +48,7 @@ export async function retrieveMavenArtifactVersions(
             .replace(/#+.*/, '')
             .replace(/\/+$/, '')
     )
-    core.debug(`True repository URL: ${trueRepositoryUrl}`)
+    core.info(`True repository URL: ${trueRepositoryUrl}`)
 
     const mavenMetadataXmlUrl = [
         trueRepositoryUrl,
