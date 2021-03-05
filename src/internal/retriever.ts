@@ -63,7 +63,19 @@ export async function retrieveMavenArtifactVersions(
 
     const requestHandlers: IRequestHandler[] = []
     if (repositoryUser || repositoryPassword) {
-        requestHandlers.push(new BasicCredentialHandler(repositoryUser || '', repositoryPassword || ''))
+        const authHandler = new BasicCredentialHandler(repositoryUser || '', repositoryPassword || '')
+        requestHandlers.push(authHandler)
+
+        const options = {headers: {}}
+        authHandler.prepareRequest(options)
+        Object.entries(options.headers).forEach(([key, value]) => {
+            if (key != null && key.toLowerCase() === 'authorization') {
+                const valueStr = (value as any)?.toString() || ''
+                if (valueStr.length) {
+                    core.setSecret(valueStr)
+                }
+            }
+        })
     }
 
     const httpClient = new HttpClient('retrieve-maven-artifact-versions', requestHandlers)
