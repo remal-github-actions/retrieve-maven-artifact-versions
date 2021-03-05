@@ -357,7 +357,19 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
     core.info(`Retrieving maven-metadata.xml: ${mavenMetadataXmlUrl}`);
     const requestHandlers = [];
     if (repositoryUser || repositoryPassword) {
-        requestHandlers.push(new auth_1.BasicCredentialHandler(repositoryUser || '', repositoryPassword || ''));
+        const authHandler = new auth_1.BasicCredentialHandler(repositoryUser || '', repositoryPassword || '');
+        requestHandlers.push(authHandler);
+        const options = { headers: {} };
+        authHandler.prepareRequest(options);
+        Object.entries(options.headers).forEach(([key, value]) => {
+            var _a;
+            if (key != null && key.toLowerCase() === 'authorization') {
+                const valueStr = ((_a = value) === null || _a === void 0 ? void 0 : _a.toString()) || '';
+                if (valueStr.length) {
+                    core.setSecret(valueStr);
+                }
+            }
+        });
     }
     const httpClient = new http_client_1.HttpClient('retrieve-maven-artifact-versions', requestHandlers);
     return ts_retry_promise_1.retry(() => httpClient.get(mavenMetadataXmlUrl, {
