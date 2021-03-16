@@ -1,2 +1,3 @@
-# template-typescript
-Template repository for GitHub typescript actions
+# retrieve-maven-artifact-versions
+
+Retrieve Maven artifact versions from Maven repository
