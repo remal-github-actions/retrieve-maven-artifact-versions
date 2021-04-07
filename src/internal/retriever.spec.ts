@@ -105,6 +105,74 @@ describe('retriever', () => {
             })
     })
 
+    it('unstable only', () => {
+        nock('https://repo1.maven.org').persist()
+            .get('/maven2/org/springframework/boot/spring.core/maven-metadata.xml')
+            .reply(200, `
+                <metadata modelVersion="1.1.0">
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring.core</artifactId>
+                    <versioning>
+                        <versions>
+                            <version>1.0-rc1</version>
+                            <version>1.2-rc1</version>
+                            <version>1.2-rc2</version>
+                            <version>2.0-m1</version>
+                            <version>2.5.6.SEC01</version>
+                            <version>5.3.0-CR1</version>
+                            <version>5.3.0-CR2</version>
+                        </versions>
+                    </versioning>
+                </metadata>
+            `)
+
+        return retrieveMavenArtifactVersions(
+            'org.springframework.boot',
+            'spring.core',
+            'https://repo1.maven.org/maven2/'
+        )
+            .then(versions => {
+                expect(versions.latestStable).toBeUndefined()
+                expect(versions.latestUnstable).toStrictEqual(new Version('5.3.0-CR2'))
+
+                expect(versions.stable).toStrictEqual([])
+                expect(versions.stableAndLatestUnstable).toStrictEqual([
+                    new Version('5.3.0-CR2'),
+                ])
+                expect(versions.unstable).toStrictEqual([
+                    new Version('5.3.0-CR2'),
+                    new Version('5.3.0-CR1'),
+                    new Version('2.5.6.SEC01'),
+                    new Version('2.0-m1'),
+                    new Version('1.2-rc2'),
+                    new Version('1.2-rc1'),
+                    new Version('1.0-rc1'),
+                ])
+
+                expect(versions.stableMajors).toStrictEqual([])
+                expect(versions.stableMajorsAndLatestUnstable).toStrictEqual([
+                    new Version('5.3.0-CR2'),
+                ])
+                expect(versions.unstableMajors).toStrictEqual([
+                    new Version('5.3.0-CR2'),
+                    new Version('2.5.6.SEC01'),
+                    new Version('1.2-rc2'),
+                ])
+
+                expect(versions.stableMinors).toStrictEqual([])
+                expect(versions.stableMinorAndLatestUnstable).toStrictEqual([
+                    new Version('5.3.0-CR2'),
+                ])
+                expect(versions.unstableMinors).toStrictEqual([
+                    new Version('5.3.0-CR2'),
+                    new Version('2.5.6.SEC01'),
+                    new Version('2.0-m1'),
+                    new Version('1.2-rc2'),
+                    new Version('1.0-rc1'),
+                ])
+            })
+    })
+
     it('404 status', () => {
         nock('https://repo1.maven.org').persist()
             .get('/maven2/org/springframework/boot/spring.core/maven-metadata.xml')

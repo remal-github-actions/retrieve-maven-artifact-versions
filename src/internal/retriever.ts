@@ -166,6 +166,13 @@ export async function retrieveMavenArtifactVersions(
                     stableMajorsAndLatestUnstable.unshift(latestUnstable)
                     stableMinorAndLatestUnstable.unshift(latestUnstable)
                 }
+            } else {
+                const latestUnstable = unstable.find(ver => !ver.isRelease)
+                if (latestUnstable != null) {
+                    stableAndLatestUnstable.unshift(latestUnstable)
+                    stableMajorsAndLatestUnstable.unshift(latestUnstable)
+                    stableMinorAndLatestUnstable.unshift(latestUnstable)
+                }
             }
 
             return {
