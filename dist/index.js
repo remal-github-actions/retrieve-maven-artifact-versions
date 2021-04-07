@@ -379,6 +379,9 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
         if (statusCode != null && statusCode >= 200 && statusCode < 300) {
             return resp;
         }
+        else if (statusCode === 404) {
+            return resp;
+        }
         else {
             throw new http_client_1.HttpClientError(`Request failed with status ${statusCode}`, statusCode || NaN);
         }
@@ -386,7 +389,13 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
         retries: 2,
         delay: timeoutBetweenRetries,
     })
-        .then(response => response.readBody())
+        .then(response => {
+        const statusCode = response.message.statusCode;
+        if (statusCode === 404) {
+            return '<metadata/>';
+        }
+        return response.readBody();
+    })
         .then(content => {
         var _a, _b, _c;
         const root = xml2js.xml2js(content, {
@@ -421,15 +430,34 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
         versions.sort(Version_1.compareVersionsDesc);
         const stable = versions.filter(ver => ver.isRelease);
         const unstable = versions;
+        const stableMajors = lastVersionByNumber_1.lastVersionByNumber(stable, 2);
+        const unstableMajors = lastVersionByNumber_1.lastVersionByNumber(unstable, 2);
+        const stableMinors = lastVersionByNumber_1.lastVersionByNumber(stable, 3);
+        const unstableMinors = lastVersionByNumber_1.lastVersionByNumber(unstable, 3);
+        const stableAndLatestUnstable = [...stable];
+        const stableMajorsAndLatestUnstable = [...stableMajors];
+        const stableMinorAndLatestUnstable = [...stableMinors];
+        const latestStable = stable.length ? stable[0] : undefined;
+        if (latestStable != null) {
+            const latestUnstable = unstable.find(ver => !ver.isRelease && ver.compareTo(latestStable) > 0);
+            if (latestUnstable != null) {
+                stableAndLatestUnstable.unshift(latestUnstable);
+                stableMajorsAndLatestUnstable.unshift(latestUnstable);
+                stableMinorAndLatestUnstable.unshift(latestUnstable);
+            }
+        }
         return {
-            stable,
-            unstable,
             latestStable: stable.find(() => true),
             latestUnstable: unstable.find(() => true),
-            stableMajors: lastVersionByNumber_1.lastVersionByNumber(stable, 2),
-            unstableMajors: lastVersionByNumber_1.lastVersionByNumber(unstable, 2),
-            stableMinors: lastVersionByNumber_1.lastVersionByNumber(stable, 3),
-            unstableMinors: lastVersionByNumber_1.lastVersionByNumber(unstable, 3),
+            stable,
+            stableAndLatestUnstable,
+            unstable,
+            stableMajors,
+            stableMajorsAndLatestUnstable,
+            unstableMajors,
+            stableMinors,
+            stableMinorAndLatestUnstable,
+            unstableMinors,
         };
     })
         .finally(() => httpClient.dispose());
