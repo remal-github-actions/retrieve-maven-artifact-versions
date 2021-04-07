@@ -24,13 +24,16 @@ export function resolveRepositoryAlias(repositoryUrl: string): string {
 
 
 export interface MavenArtifactVersions {
-    stable: readonly Version[]
-    unstable: readonly Version[]
     latestStable: Version | undefined
     latestUnstable: Version | undefined
+    stable: readonly Version[]
+    stableAndLatestUnstable: readonly Version[]
+    unstable: readonly Version[]
     stableMajors: readonly Version[]
+    stableMajorsAndLatestUnstable: readonly Version[]
     unstableMajors: readonly Version[]
     stableMinors: readonly Version[]
+    stableMinorAndLatestUnstable: readonly Version[]
     unstableMinors: readonly Version[]
 }
 
@@ -87,6 +90,8 @@ export async function retrieveMavenArtifactVersions(
                 const statusCode = resp.message.statusCode
                 if (statusCode != null && statusCode >= 200 && statusCode < 300) {
                     return resp
+                } else if (statusCode === 404) {
+                    return resp
                 } else {
                     throw new HttpClientError(
                         `Request failed with status ${statusCode}`,
@@ -99,7 +104,13 @@ export async function retrieveMavenArtifactVersions(
             delay: timeoutBetweenRetries,
         }
     )
-        .then(response => response.readBody())
+        .then(response => {
+            const statusCode = response.message.statusCode!
+            if (statusCode === 404) {
+                return '<metadata/>'
+            }
+            return response.readBody()
+        })
         .then(content => {
             const root = xml2js.xml2js(content, {
                 trim: true,
@@ -139,15 +150,36 @@ export async function retrieveMavenArtifactVersions(
             const stable = versions.filter(ver => ver.isRelease)
             const unstable = versions
 
+            const stableMajors = lastVersionByNumber(stable, 2)
+            const unstableMajors = lastVersionByNumber(unstable, 2)
+            const stableMinors = lastVersionByNumber(stable, 3)
+            const unstableMinors = lastVersionByNumber(unstable, 3)
+
+            const stableAndLatestUnstable: Version[] = [...stable]
+            const stableMajorsAndLatestUnstable: Version[] = [...stableMajors]
+            const stableMinorAndLatestUnstable: Version[] = [...stableMinors]
+            const latestStable = stable.length ? stable[0] : undefined
+            if (latestStable != null) {
+                const latestUnstable = unstable.find(ver => !ver.isRelease && ver.compareTo(latestStable) > 0)
+                if (latestUnstable != null) {
+                    stableAndLatestUnstable.unshift(latestUnstable)
+                    stableMajorsAndLatestUnstable.unshift(latestUnstable)
+                    stableMinorAndLatestUnstable.unshift(latestUnstable)
+                }
+            }
+
             return {
-                stable,
-                unstable,
                 latestStable: stable.find(() => true),
                 latestUnstable: unstable.find(() => true),
-                stableMajors: lastVersionByNumber(stable, 2),
-                unstableMajors: lastVersionByNumber(unstable, 2),
-                stableMinors: lastVersionByNumber(stable, 3),
-                unstableMinors: lastVersionByNumber(unstable, 3),
+                stable,
+                stableAndLatestUnstable,
+                unstable,
+                stableMajors,
+                stableMajorsAndLatestUnstable,
+                unstableMajors,
+                stableMinors,
+                stableMinorAndLatestUnstable,
+                unstableMinors,
             }
         })
         .finally(() => httpClient.dispose())

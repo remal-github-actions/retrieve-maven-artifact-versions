@@ -30,20 +30,26 @@ inputs:
     description: Maximum version
 
 outputs:
-  stable:
-    description: JSON array of all matched stable versions
-  unstable:
-    description: JSON array of all matched stable and unstable versions
   latestStable:
     description: Latest matched stable version
   latestUnstable:
     description: Latest matched version among stable and unstable versions
+  stable:
+    description: JSON array of all matched stable versions
+  stableAndLatestUnstable:
+    description: JSON array of all matched stable versions and latest unstable if it's greater than latest stable
+  unstable:
+    description: JSON array of all matched stable and unstable versions
   stableMajors:
     description: JSON array of last minor version of all matched stable versions
+  stableMajorsAndLatestUnstable:
+    description: JSON array of last minor version of all matched stable versions and latest unstable if it's greater than latest stable
   unstableMajors:
     description: JSON array of last minor version of all matched stable and unstable versions
   stableMinor:
     description: JSON array of last patch version of all matched stable versions
+  stableMinorAndLatestUnstable:
+    description: JSON array of last patch version of all matched stable versions and latest unstable if it's greater than latest stable
   unstableMinor:
     description: JSON array of last patch version of all matched stable and unstable versions
 
