@@ -54,10 +54,20 @@ jobs:
 
 
     - name: Run current action
+      id: current
       uses: ./
       with:
         group: org.ow2.asm
         name: asm
+
+    - name: Validate current action
+      run: |
+        if [ "${{ contains(fromJSON(steps.current.outputs.stable), '7.3.1' }}" == "true" ]; then
+          echo "Valid"
+        else
+          echo "::error Current action output doesn't contain '7.3.1'"
+          exit 1
+        fi
 
 
     - name: Push back
