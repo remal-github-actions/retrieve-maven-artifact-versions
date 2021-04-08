@@ -446,6 +446,14 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
                 stableMinorAndLatestUnstable.unshift(latestUnstable);
             }
         }
+        else {
+            const latestUnstable = unstable.find(ver => !ver.isRelease);
+            if (latestUnstable != null) {
+                stableAndLatestUnstable.unshift(latestUnstable);
+                stableMajorsAndLatestUnstable.unshift(latestUnstable);
+                stableMinorAndLatestUnstable.unshift(latestUnstable);
+            }
+        }
         return {
             latestStable: stable.find(() => true),
             latestUnstable: unstable.find(() => true),
