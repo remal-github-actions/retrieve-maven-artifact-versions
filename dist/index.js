@@ -534,7 +534,7 @@ async function run() {
             .filter(it => it.length)
             .map(Version_1.Version.parse)
             .filter(it => it != null);
-        const maxVersions = core.getInput('min').split(/[,;]/)
+        const maxVersions = core.getInput('max').split(/[,;]/)
             .map(it => it.trim())
             .filter(it => it.length)
             .map(Version_1.Version.parse)
