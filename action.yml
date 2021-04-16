@@ -28,6 +28,9 @@ inputs:
   max:
     required: false
     description: Maximum version
+  exclude:
+    required: false
+    description: Version to exclude
 
 outputs:
   latestStable:

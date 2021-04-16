@@ -20,8 +20,23 @@ async function run(): Promise<void> {
             core.setSecret(repositoryPassword)
         }
 
-        const minVersion = Version.parse(core.getInput('min').trim())
-        const maxVersion = Version.parse(core.getInput('max').trim())
+        const minVersions = core.getInput('min').split(/[,;]/)
+            .map(it => it.trim())
+            .filter(it => it.length)
+            .map(Version.parse)
+            .filter(it => it != null) as Version[]
+
+        const maxVersions = core.getInput('min').split(/[,;]/)
+            .map(it => it.trim())
+            .filter(it => it.length)
+            .map(Version.parse)
+            .filter(it => it != null) as Version[]
+
+        const excludedVersions = core.getInput('exclude').split(/[,;]/)
+            .map(it => it.trim())
+            .filter(it => it.length)
+            .map(Version.parse)
+            .filter(it => it != null) as Version[]
 
         const versions = await retrieveMavenArtifactVersions(
             artifactGroup,
@@ -29,8 +44,9 @@ async function run(): Promise<void> {
             repositoryUrl,
             repositoryUser,
             repositoryPassword,
-            minVersion,
-            maxVersion
+            minVersions,
+            maxVersions,
+            excludedVersions
         )
 
         Object.entries(versions).forEach(([key, value]) => {

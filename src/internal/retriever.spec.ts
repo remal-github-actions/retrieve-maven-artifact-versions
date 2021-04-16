@@ -220,6 +220,49 @@ describe('retriever', () => {
             .finally(() => expect(requestsCount).toBe(3))
     })
 
+    it('min, max, excluded', () => {
+        nock('https://repo1.maven.org').persist()
+            .get('/maven2/org/springframework/boot/spring.core/maven-metadata.xml')
+            .reply(200, `
+                <metadata modelVersion="1.1.0">
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring.core</artifactId>
+                    <versioning>
+                        <versions>
+                            <version>1.0</version>
+                            <version>1.1</version>
+                            <version>1.2</version>
+                            <version>1.3</version>
+                            <version>1.4</version>
+                        </versions>
+                    </versioning>
+                </metadata>
+            `)
+
+        const min = Version.parse('1.1')!
+        const max = Version.parse('1.3')!
+        const excluded = Version.parse('1.2')!
+
+        return retrieveMavenArtifactVersions(
+            'org.springframework.boot',
+            'spring.core',
+            'https://repo1.maven.org/maven2/',
+            undefined,
+            undefined,
+            [min],
+            [max],
+            [excluded]
+        )
+            .then(versions => {
+                expect(versions.latestStable).toStrictEqual(new Version('1.3'))
+
+                expect(versions.stable).toStrictEqual([
+                    new Version('1.3'),
+                    new Version('1.1'),
+                ])
+            })
+    })
+
 
     it('resolveRepositoryAlias', () => {
         expect(resolveRepositoryAlias('central'))

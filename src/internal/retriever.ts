@@ -45,8 +45,9 @@ export async function retrieveMavenArtifactVersions(
     repositoryUrl: string,
     repositoryUser?: string,
     repositoryPassword?: string,
-    minVersion?: Version,
-    maxVersion?: Version
+    minVersions: Version[] = [],
+    maxVersions: Version[] = [],
+    excludedVersions: Version[] = []
 ): Promise<MavenArtifactVersions> {
     core.info(`Retrieving ${artifactGroup}:${artifactName} versions from ${repositoryUrl}`)
 
@@ -131,19 +132,20 @@ export async function retrieveMavenArtifactVersions(
                 })
                 .filter(ver => ver != null) as Version[]
 
-            if (minVersion || maxVersion) {
-                const filter: (string) => boolean = version => {
-                    version = version.split('-')[0]
-                    if (minVersion && minVersion.compareTo(version) > 0) {
-                        return false
-                    }
-                    if (maxVersion && maxVersion.compareTo(version) < 0) {
-                        return false
-                    }
-                    return true
+            const filter: (string) => boolean = version => {
+                version = version.withoutSuffix()
+                if (minVersions.some(minVersion => minVersion.compareTo(version) > 0)) {
+                    return false
                 }
-                versions = versions.filter(filter)
+                if (maxVersions.some(maxVersion => maxVersion.compareTo(version) < 0)) {
+                    return false
+                }
+                if (excludedVersions.some(excludedVersion => excludedVersion.compareTo(version) == 0)) {
+                    return false
+                }
+                return true
             }
+            versions = versions.filter(filter)
 
             versions.sort(compareVersionsDesc)
 
