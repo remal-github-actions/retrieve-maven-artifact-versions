@@ -78,7 +78,7 @@ jobs:
           exit 1
         fi
         if [ "${{ contains(fromJSON(env.OUTPUT), '8.0') }}" != "false" ]; then
-          echo "::error Current action output contains '5.1': $OUTPUT"
+          echo "::error Current action output contains '8.0': $OUTPUT"
           exit 1
         fi
         if [ "${{ contains(fromJSON(env.OUTPUT), '7.1') }}" != "false" ]; then
