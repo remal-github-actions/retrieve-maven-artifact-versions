@@ -341,7 +341,7 @@ function resolveRepositoryAlias(repositoryUrl) {
 }
 exports.resolveRepositoryAlias = resolveRepositoryAlias;
 const timeoutBetweenRetries = process.env.NODE_ENV !== 'test' ? 5000 : 0;
-async function retrieveMavenArtifactVersions(artifactGroup, artifactName, repositoryUrl, repositoryUser, repositoryPassword, minVersion, maxVersion) {
+async function retrieveMavenArtifactVersions(artifactGroup, artifactName, repositoryUrl, repositoryUser, repositoryPassword, minVersions = [], maxVersions = [], excludedVersions = []) {
     core.info(`Retrieving ${artifactGroup}:${artifactName} versions from ${repositoryUrl}`);
     repositoryUrl = resolveRepositoryAlias(repositoryUrl
         .replace(/\?+.*/, '')
@@ -414,19 +414,20 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
             return ver;
         })
             .filter(ver => ver != null);
-        if (minVersion || maxVersion) {
-            const filter = version => {
-                version = version.split('-')[0];
-                if (minVersion && minVersion.compareTo(version) > 0) {
-                    return false;
-                }
-                if (maxVersion && maxVersion.compareTo(version) < 0) {
-                    return false;
-                }
-                return true;
-            };
-            versions = versions.filter(filter);
-        }
+        const filter = version => {
+            version = version.withoutSuffix();
+            if (minVersions.some(minVersion => minVersion.compareTo(version) > 0)) {
+                return false;
+            }
+            if (maxVersions.some(maxVersion => maxVersion.compareTo(version) < 0)) {
+                return false;
+            }
+            if (excludedVersions.some(excludedVersion => excludedVersion.compareTo(version) == 0)) {
+                return false;
+            }
+            return true;
+        };
+        versions = versions.filter(filter);
         versions.sort(Version_1.compareVersionsDesc);
         const stable = versions.filter(ver => ver.isRelease);
         const unstable = versions;
@@ -528,9 +529,22 @@ async function run() {
         if (repositoryPassword) {
             core.setSecret(repositoryPassword);
         }
-        const minVersion = Version_1.Version.parse(core.getInput('min').trim());
-        const maxVersion = Version_1.Version.parse(core.getInput('max').trim());
-        const versions = await retriever_1.retrieveMavenArtifactVersions(artifactGroup, artifactName, repositoryUrl, repositoryUser, repositoryPassword, minVersion, maxVersion);
+        const minVersions = core.getInput('min').split(/[,;]/)
+            .map(it => it.trim())
+            .filter(it => it.length)
+            .map(Version_1.Version.parse)
+            .filter(it => it != null);
+        const maxVersions = core.getInput('min').split(/[,;]/)
+            .map(it => it.trim())
+            .filter(it => it.length)
+            .map(Version_1.Version.parse)
+            .filter(it => it != null);
+        const excludedVersions = core.getInput('exclude').split(/[,;]/)
+            .map(it => it.trim())
+            .filter(it => it.length)
+            .map(Version_1.Version.parse)
+            .filter(it => it != null);
+        const versions = await retriever_1.retrieveMavenArtifactVersions(artifactGroup, artifactName, repositoryUrl, repositoryUser, repositoryPassword, minVersions, maxVersions, excludedVersions);
         Object.entries(versions).forEach(([key, value]) => {
             if (value == null) {
                 // skip NULLs
