@@ -59,15 +59,29 @@ jobs:
       with:
         group: org.ow2.asm
         name: asm
+        min: 6.0, 6.1.999
+        max: 7.0.999
 
     - name: Validate current action
       env:
         OUTPUT: ${{ steps.current.outputs.stable }}
       run: |
-        if [ "${{ contains(fromJSON(env.OUTPUT), '7.3.1') }}" == "true" ]; then
+        if [ "${{ contains(fromJSON(env.OUTPUT), '6.1.1') }}" == "true" ]; then
           echo "Valid"
         else
-          echo "::error Current action output doesn't contain '7.3.1': $OUTPUT"
+          echo "::error Current action output doesn't contain '6.1.1': $OUTPUT"
+          exit 1
+        fi
+        if [ "${{ contains(fromJSON(env.OUTPUT), '7.1') }}" == "false" ]; then
+          echo "Valid"
+        else
+          echo "::error Current action output contains '7.1': $OUTPUT"
+          exit 1
+        fi
+        if [ "${{ contains(fromJSON(env.OUTPUT), '6.0') }}" == "false" ]; then
+          echo "Valid"
+        else
+          echo "::error Current action output contains '6.0': $OUTPUT"
           exit 1
         fi
 
