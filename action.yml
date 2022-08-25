@@ -57,5 +57,5 @@ outputs:
     description: JSON array of last patch version of all matched stable and unstable versions
 
 runs:
-  using: node12
+  using: node16
   main: 'dist/index.js'
