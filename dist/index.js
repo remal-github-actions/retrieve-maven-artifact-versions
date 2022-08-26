@@ -300,7 +300,11 @@ exports.lastVersionByNumber = lastVersionByNumber;
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -361,9 +365,8 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
         const options = { headers: {} };
         authHandler.prepareRequest(options);
         Object.entries(options.headers).forEach(([key, value]) => {
-            var _a;
             if (key != null && key.toLowerCase() === 'authorization') {
-                const valueStr = ((_a = value) === null || _a === void 0 ? void 0 : _a.toString()) || '';
+                const valueStr = (value === null || value === void 0 ? void 0 : value.toString()) || '';
                 if (valueStr.length) {
                     core.setSecret(valueStr);
                 }
@@ -371,7 +374,7 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
         });
     }
     const httpClient = new http_client_1.HttpClient('retrieve-maven-artifact-versions', requestHandlers);
-    return ts_retry_promise_1.retry(() => httpClient.get(mavenMetadataXmlUrl, {
+    return (0, ts_retry_promise_1.retry)(() => httpClient.get(mavenMetadataXmlUrl, {
         'Accept-Encoding': 'identity',
     })
         .then(resp => {
@@ -431,10 +434,10 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
         versions.sort(Version_1.compareVersionsDesc);
         const stable = versions.filter(ver => ver.isRelease);
         const unstable = versions;
-        const stableMajors = lastVersionByNumber_1.lastVersionByNumber(stable, 2);
-        const unstableMajors = lastVersionByNumber_1.lastVersionByNumber(unstable, 2);
-        const stableMinors = lastVersionByNumber_1.lastVersionByNumber(stable, 3);
-        const unstableMinors = lastVersionByNumber_1.lastVersionByNumber(unstable, 3);
+        const stableMajors = (0, lastVersionByNumber_1.lastVersionByNumber)(stable, 2);
+        const unstableMajors = (0, lastVersionByNumber_1.lastVersionByNumber)(unstable, 2);
+        const stableMinors = (0, lastVersionByNumber_1.lastVersionByNumber)(stable, 3);
+        const unstableMinors = (0, lastVersionByNumber_1.lastVersionByNumber)(unstable, 3);
         const stableAndLatestUnstable = [...stable];
         const stableMajorsAndLatestUnstable = [...stableMajors];
         const stableMinorAndLatestUnstable = [...stableMinors];
@@ -494,7 +497,11 @@ function toArray(obj) {
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -544,7 +551,7 @@ async function run() {
             .filter(it => it.length)
             .map(Version_1.Version.parse)
             .filter(it => it != null);
-        const versions = await retriever_1.retrieveMavenArtifactVersions(artifactGroup, artifactName, repositoryUrl, repositoryUser, repositoryPassword, minVersions, maxVersions, excludedVersions);
+        const versions = await (0, retriever_1.retrieveMavenArtifactVersions)(artifactGroup, artifactName, repositoryUrl, repositoryUser, repositoryPassword, minVersions, maxVersions, excludedVersions);
         Object.entries(versions).forEach(([key, value]) => {
             if (value == null) {
                 // skip NULLs
