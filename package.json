@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@actions/core": "1.9.1",
-    "@actions/http-client": "1.0.11",
+    "@actions/http-client": "2.0.1",
     "ts-retry-promise": "0.7.0",
     "xml-js": "1.6.11"
   },
