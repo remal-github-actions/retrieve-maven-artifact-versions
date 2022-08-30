@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import {HttpClient, HttpClientError} from '@actions/http-client'
-import {BasicCredentialHandler} from '@actions/http-client/auth'
-import {IRequestHandler} from '@actions/http-client/interfaces'
+import {BasicCredentialHandler} from '@actions/http-client/lib/auth'
+import {RequestHandler} from '@actions/http-client/lib/interfaces'
 import {retry} from 'ts-retry-promise'
 import * as xml2js from 'xml-js'
 import {ElementCompact} from 'xml-js'
@@ -65,7 +65,7 @@ export async function retrieveMavenArtifactVersions(
     ].join('/')
     core.info(`Retrieving maven-metadata.xml: ${mavenMetadataXmlUrl}`)
 
-    const requestHandlers: IRequestHandler[] = []
+    const requestHandlers: RequestHandler[] = []
     if (repositoryUser || repositoryPassword) {
         const authHandler = new BasicCredentialHandler(repositoryUser || '', repositoryPassword || '')
         requestHandlers.push(authHandler)
