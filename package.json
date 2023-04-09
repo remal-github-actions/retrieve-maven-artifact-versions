@@ -21,7 +21,7 @@
     "xml-js": "1.6.11"
   },
   "devDependencies": {
-    "@tsconfig/node12": "1.0.11",
+    "@tsconfig/node16": "1.0.3",
     "@types/jest": "29.5.0",
     "@types/node": "18.15.11",
     "@typescript-eslint/eslint-plugin": "5.57.1",
