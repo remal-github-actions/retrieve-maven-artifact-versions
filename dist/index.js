@@ -366,7 +366,7 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
         authHandler.prepareRequest(options);
         Object.entries(options.headers).forEach(([key, value]) => {
             if (key != null && key.toLowerCase() === 'authorization') {
-                const valueStr = (value === null || value === void 0 ? void 0 : value.toString()) || '';
+                const valueStr = value?.toString() || '';
                 if (valueStr.length) {
                     core.setSecret(valueStr);
                 }
@@ -400,7 +400,6 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
         return response.readBody();
     })
         .then(content => {
-        var _a, _b, _c;
         const root = xml2js.xml2js(content, {
             trim: true,
             compact: true,
@@ -408,7 +407,7 @@ async function retrieveMavenArtifactVersions(artifactGroup, artifactName, reposi
             ignoreComment: true,
         });
         core.debug(JSON.stringify(root, null, 2));
-        let versions = toArray((_c = (_b = (_a = root.metadata) === null || _a === void 0 ? void 0 : _a.versioning) === null || _b === void 0 ? void 0 : _b.versions) === null || _c === void 0 ? void 0 : _c.version)
+        let versions = toArray(root.metadata?.versioning?.versions?.version)
             .map((node, index) => {
             const ver = Version_1.Version.parse(node._text);
             if (ver == null) {
